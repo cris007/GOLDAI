@@ -5,15 +5,15 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-# 1. Page Configuration for absolute optimal mobile responsive viewing
+# 1. Page Configuration for absolute optimal mobile layout responsive display
 st.set_page_config(
-    page_title="Gold Triple-Engine Terminal",
-    page_icon="⚜️",
+    page_title="Gold Predictive AI Oracle",
+    page_icon="🤖",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Custom Institutional CSS Injector Sheet with padding fixes for Gauges and Cards
+# Custom Institutional CSS Injector Layer
 st.markdown("""
     <style>
     .section-box {
@@ -135,9 +135,10 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             st.error("⚠️ Server returned incomplete fields over the weekend. Please refresh.")
             st.stop()
             
+        # FIXED CRITICAL DATA DROP VALUE ERROR: Gap-fill empty cells FIRST before processing indicators or rolling metrics
         df = df.ffill().bfill()
 
-        # --- PHASE 2: GENERATE THE COLOR-CODED METRICS SCORECARD TABLE ROWS ---
+        # --- PHASE 2: GENERATE THE METRICS SCORECARD TABLE ROWS ---
         table_rows = []
         assets_mapping = {
             "DXY Index (US Dollar)": "DXY_Close",
@@ -191,23 +192,29 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         df['News_Pts'] = np.random.normal(live_sent * 1.5, 0.1, len(df))
         df['Fund_Score'] = df['DXY_Pts'] + df['TLT_Pts'] + df['VIX_Pts'] + df['SPY_Pts'] + df['TIP_Pts'] + df['XAE_Pts'] + df['Miner_Pts'] + df['News_Pts']
         fund_score_live = float(df['Fund_Score'].iloc[-1])
-        # --- PHASE 4: ENGINEER MULTI-HORIZON TARGETS FOR CHOSEN TIME HORIZONS ---
-        df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)   # Short (2 Days)
-        df['Target_MT'] = np.where(df['Gold_Close'].shift(-14) > df['Gold_Close'], 1, 0)  # Medium (14 Days)
-        df['Target_LT'] = np.where(df['Gold_Close'].shift(-45) > df['Gold_Close'], 1, 0)  # Long (45 Days)
+        # --- PHASE 4: FIXED SAFE-GUARDED MACHINE LEARNING HORIZONS ---
+        df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)   # Short Term
+        df['Target_MT'] = np.where(df['Gold_Close'].shift(-14) > df['Gold_Close'], 1, 0)  # Medium Term
+        df['Target_LT'] = np.where(df['Gold_Close'].shift(-45) > df['Gold_Close'], 1, 0)  # Long Term
+        
+        # Safe Execution Gate: Dropna is executed ONLY at the very end after rolling columns are filled
         df_clean = df.dropna().copy()
         
-        feature_cols = ['GC_Buy', 'GC_Sell', 'Fund_Score', 'DXY_Pts', 'TLT_Pts', 'Miner_Pts', 'VIX_Pts']
-        X = df_clean[feature_cols]
-        
-        # Fit models for all horizons
-        model_st = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_ST'])
-        model_mt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_MT'])
-        model_lt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_LT'])
-        
-        ai_st_pct = float(model_st.predict_proba(X.iloc[[-1]]) * 100)
-        ai_mt_pct = float(model_mt.predict_proba(X.iloc[[-1]]) * 100)
-        ai_lt_pct = float(model_lt.predict_proba(X.iloc[[-1]]) * 100)
+        # SYSTEM ARMOR CHECK: Guarantees the classifiers never run into an empty array if data feeds lag
+        if df_clean.empty or len(df_clean) < 10:
+            ai_st_pct, ai_mt_pct, ai_lt_pct = 50.0, 50.0, 50.0 # Return fallback balanced neutral states
+        else:
+            feature_cols = ['GC_Buy', 'GC_Sell', 'Fund_Score', 'DXY_Pts', 'TLT_Pts', 'Miner_Pts', 'VIX_Pts']
+            X = df_clean[feature_cols]
+            
+            model_st = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_ST'])
+            model_mt = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_MT'])
+            model_lt = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_LT'])
+            
+            # Extract scalars securely using index cell slices to eliminate runtime warnings
+            ai_st_pct = float(model_st.predict_proba(X.iloc[[-1]])[0][1] * 100)
+            ai_mt_pct = float(model_mt.predict_proba(X.iloc[[-1]])[0][1] * 100)
+            ai_lt_pct = float(model_lt.predict_proba(X.iloc[[-1]])[0][1] * 100)
 
         # --- PHASE 5: RE-ENGINEERED SVG GAUGE GENERATOR COMPILER ---
         def generate_html_gauge(title_label, metric_score, type_mode):
@@ -252,9 +259,8 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             </div>
             """
 
-        # --- PHASE 6: RENDER INTERACTIVE TIME HORIZON TABS CONTAINER LAYER (YOUR REQUEST) ---
+        # --- PHASE 6: RENDER INTERACTIVE TIME HORIZON TABS CONTAINER LAYER ---
         st.markdown("---")
-        # Generate the identical 3 tab choices matching your exact layout images
         tab_st, tab_mt, tab_lt = st.tabs(["Short-Term\nIntraday - 1 Week", "Medium-Term\n2 Weeks - 1 Month", "Long-Term\n1 - 6 Months"])
         
         with tab_st:
@@ -276,7 +282,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             st.components.v1.html(generate_html_gauge("Long-Term Machine Conviction", ai_lt_pct, "AI"), height=255)
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # --- PHASE 7: RENDER THE PROFESSIONAL HIGH-CONTRAST DATA MATRIX ---
+        # --- PHASE 7: RENDER THE HIGH-CONTRAST DATA MATRIX SCORECARD ---
         st.markdown("---")
         st.subheader("📋 Macro Portfolio Scorecard Matrix")
         
@@ -288,7 +294,6 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             except: return 'color: #C9D1D9;'
                 
         styled_scorecard = df_scorecard.style.map(apply_color_shading, subset=['Change (Points)', 'Change (%)']).format({
-            'Change (Points)': '{:+.3f}' if "Yield" in str(df_scorecard['Asset Component Name']) else '{:+.2f}', 
-            'Change (%)': '{:+.2f}%'
+            'Change (Points)': '{:+.2f}', 'Change (%)': '{:+.2f}%'
         })
         st.dataframe(styled_scorecard, use_container_width=True, hide_index=True)
