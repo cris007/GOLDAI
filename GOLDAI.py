@@ -5,15 +5,15 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-# 1. Page Configuration for optimal mobile layout responsive display
+# 1. Page Configuration for absolute optimal mobile responsive viewing
 st.set_page_config(
-    page_title="Gold Predictive AI Oracle",
-    page_icon="🤖",
+    page_title="Gold Triple-Engine Terminal",
+    page_icon="⚜️",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Custom Institutional CSS Injector Layer
+# Custom Institutional CSS Injector Sheet with padding fixes for Gauges and Cards
 st.markdown("""
     <style>
     .section-box {
@@ -94,6 +94,7 @@ def fetch_header_metrics():
         except: metrics[key] = {"val": 0.0}
     return metrics
 
+# Render institutional price header blocks
 m_data = fetch_header_metrics()
 st.markdown(f"""
     <div style="display: flex; justify-content: space-between; align-items: center; background: #0D1117; border: 1px solid #21262D; padding: 12px 20px; border-radius: 10px; margin-bottom: 25px;">
@@ -105,11 +106,12 @@ st.markdown(f"""
         </div>
     </div>
 """, unsafe_allow_html=True)
+# Processing Trigger Button
 if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_container_width=True):
     with st.spinner("Processing deep analytics matrix..."):
         
         # --- PHASE 1: UNIFIED HIGH-SPEED BATCH DATA STREAM SYNC ---
-        ticker_symbols = ["GC=F", "DX-Y.NYB", "TLT", "^VIX", "SPY", "TIP", "XAUEUR=X", "GDX", "GDXJ", "GOLD", "NEM", "GFI", "AEM"]
+        ticker_symbols = ["GC=F", "DX-Y.NYB", "TLT", "^TNX", "^VIX", "SPY", "TIP", "XAUEUR=X", "GDX", "GDXJ", "GOLD", "NEM", "GFI", "AEM"]
         try:
             batch_data = yf.download(ticker_symbols, period="2y", interval="1d", group_by='ticker', progress=False)
         except:
@@ -121,9 +123,10 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             df['Gold_Close'] = batch_data['GC=F']['Close']; df['Gold_High'] = batch_data['GC=F']['High']; df['Gold_Low'] = batch_data['GC=F']['Low']
             df['DXY_Close']  = batch_data['DX-Y.NYB']['Close']
             df['TLT_Close']  = batch_data['TLT']['Close']
+            df['TNX_Close']  = batch_data['^TNX']['Close'] # Nominal Yield
             df['VIX_Close']  = batch_data['^VIX']['Close']
             df['SPY_Close']  = batch_data['SPY']['Close']
-            df['TIP_Close']  = batch_data['TIP']['Close']
+            df['TIP_Close']  = batch_data['TIP']['Close']  # Real Yield Proxy
             df['XAE_Close']  = batch_data['XAUEUR=X']['Close']
             df['GDX_Close']  = batch_data['GDX']['Close']
             df['GDXJ_Close'] = batch_data['GDXJ']['Close']
@@ -132,16 +135,23 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             st.error("⚠️ Server returned incomplete fields over the weekend. Please refresh.")
             st.stop()
             
-        # CRITICAL FIX: Removed the early dropna() row destroyer and replaced with an institutional gap-fill sync
         df = df.ffill().bfill()
 
         # --- PHASE 2: GENERATE THE COLOR-CODED METRICS SCORECARD TABLE ROWS ---
         table_rows = []
         assets_mapping = {
-            "DXY Index (US Dollar)": "DXY_Close", "Nominal Yield Proxy (TLT)": "TLT_Close", "Volatility Fear Gauge (VIX)": "VIX_Close",
-            "Stock Market Index (SPY)": "SPY_Close", "Real Yield Opportunity (TIP)": "TIP_Close", "Cross-Asset Safe Haven (XAU/EUR)": "XAE_Close",
-            "VanEck Gold Miners ETF (GDX)": "GDX_Close", "Junior Gold Miners ETF (GDXJ)": "GDXJ_Close", "Barrick Gold Corp (GOLD)": "M1_Close",
-            "Newmont Corp (NEM)": "M2_Close", "Gold Fields Ltd (GFI)": "M3_Close", "Agnico Eagle Mines (AEM)": "M4_Close"
+            "DXY Index (US Dollar)": "DXY_Close",
+            "US 10Y Treasury Nominal Yield (^TNX)": "TNX_Close",
+            "US 10Y Treasury Real Yield Proxy (TIP)": "TIP_Close",
+            "Volatility Fear Gauge (VIX)": "VIX_Close",
+            "Stock Market Index (SPY)": "SPY_Close",
+            "Cross-Asset Safe Haven (XAU/EUR)": "XAE_Close",
+            "VanEck Gold Miners ETF (GDX)": "GDX_Close",
+            "Junior Gold Miners ETF (GDXJ)": "GDXJ_Close",
+            "Barrick Gold Corp (GOLD)": "M1_Close",
+            "Newmont Corp (NEM)": "M2_Close",
+            "Gold Fields Ltd (GFI)": "M3_Close",
+            "Agnico Eagle Mines (AEM)": "M4_Close"
         }
         
         for display_name, col_key in assets_mapping.items():
@@ -152,13 +162,14 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             
             table_rows.append({
                 "Asset Component Name": display_name,
-                "Current Price/Level": f"{val_latest:.2f}" if "VIX" in col_key or "DXY" in col_key else f"${val_latest:.2f}",
-                "Change (Points)": point_delta, "Change (%)": percentage_delta
+                "Current Price/Level": f"{val_latest:.3f}%" if "TNX" in col_key else f"{val_latest:.2f}" if "VIX" in col_key or "DXY" in col_key else f"${val_latest:.2f}",
+                "Change (Points)": point_delta,
+                "Change (%)": percentage_delta
             })
             
         df_scorecard = pd.DataFrame(table_rows)
 
-        # --- PHASE 3: CALCULATE STRATEGY PARAMETERS ---
+        # --- PHASE 3: CALCULATE STRATEGY PARAMETERS AND CRITERIA SCORES ---
         df['EMA_10']  = df['Gold_Close'].rolling(window=10).mean()
         df['EMA_20']  = df['Gold_Close'].rolling(window=20).mean()
         df['EMA_100'] = df['Gold_Close'].rolling(window=100).mean()
@@ -180,24 +191,25 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         df['News_Pts'] = np.random.normal(live_sent * 1.5, 0.1, len(df))
         df['Fund_Score'] = df['DXY_Pts'] + df['TLT_Pts'] + df['VIX_Pts'] + df['SPY_Pts'] + df['TIP_Pts'] + df['XAE_Pts'] + df['Miner_Pts'] + df['News_Pts']
         fund_score_live = float(df['Fund_Score'].iloc[-1])
-        # --- PHASE 4: ENGINEER HIGH-SAFETY MACHINE LEARNING ENSEMBLES ---
-        df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)
-        
-        # Safe Row Extraction Gate: Dropna is executed ONLY at the very end after data frames are filled
+        # --- PHASE 4: ENGINEER MULTI-HORIZON TARGETS FOR CHOSEN TIME HORIZONS ---
+        df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)   # Short (2 Days)
+        df['Target_MT'] = np.where(df['Gold_Close'].shift(-14) > df['Gold_Close'], 1, 0)  # Medium (14 Days)
+        df['Target_LT'] = np.where(df['Gold_Close'].shift(-45) > df['Gold_Close'], 1, 0)  # Long (45 Days)
         df_clean = df.dropna().copy()
         
-        # CRITICAL SAFE-GUARD: Guarantees the AI never runs into an empty array if data feeds lag
-        if df_clean.empty or len(df_clean) < 5:
-            ai_buy_pct = 50.0 # Return fallback balanced neutral state to prevent server runtime crashes
-        else:
-            feature_cols = ['GC_Buy', 'GC_Sell', 'Fund_Score', 'DXY_Pts', 'TLT_Pts', 'Miner_Pts', 'VIX_Pts']
-            X = df_clean[feature_cols]
-            model_ai = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42)
-            model_ai.fit(X, df_clean['Target_ST'])
-            prob_ai = model_ai.predict_proba(X.iloc[[-1]])
-            ai_buy_pct = float(prob_ai[0][1] * 100)
+        feature_cols = ['GC_Buy', 'GC_Sell', 'Fund_Score', 'DXY_Pts', 'TLT_Pts', 'Miner_Pts', 'VIX_Pts']
+        X = df_clean[feature_cols]
+        
+        # Fit models for all horizons
+        model_st = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_ST'])
+        model_mt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_MT'])
+        model_lt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_LT'])
+        
+        ai_st_pct = float(model_st.predict_proba(X.iloc[[-1]]) * 100)
+        ai_mt_pct = float(model_mt.predict_proba(X.iloc[[-1]]) * 100)
+        ai_lt_pct = float(model_lt.predict_proba(X.iloc[[-1]]) * 100)
 
-        # --- PHASE 5: RE-ENGINEERED SVG DIAL GENERATOR (FIXED LABEL CLIPPING) ---
+        # --- PHASE 5: RE-ENGINEERED SVG GAUGE GENERATOR COMPILER ---
         def generate_html_gauge(title_label, metric_score, type_mode):
             if type_mode == "TECH":
                 if metric_score == 1: lbl, col, angle = "STRONG BUY", "#00FF66", 155
@@ -240,51 +252,43 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             </div>
             """
 
-        # --- PHASE 6: UNIFIED SYSTEM CONFLUENCE MASTER CARDS ---
-        conf_score = 0
-        if tech_vector == 1: conf_score += 1
-        elif tech_vector == -1: conf_score -= 1
-        if fund_score_live >= 1.5: conf_score += 1
-        elif fund_score_live <= -1.5: conf_score -= 1
-        if ai_buy_pct >= 53.0: conf_score += 1
-        elif ai_buy_pct <= 47.0: conf_score -= 1
-        
+        # --- PHASE 6: RENDER INTERACTIVE TIME HORIZON TABS CONTAINER LAYER (YOUR REQUEST) ---
         st.markdown("---")
-        st.subheader("🏁 Core Confluence Signal")
-        if conf_score >= 2:
-            st.markdown('<div class="confluence-box"><div class="engine-header">Master Confluence Signal</div><div class="status-text" style="color:#00FF66; font-size:32px; text-shadow: 0 0 15px #00FF6655;">CONFLUENCE BUY</div></div>', unsafe_allow_html=True)
-        elif conf_score <= -2:
-            st.markdown('<div class="confluence-box"><div class="engine-header">Master Confluence Signal</div><div class="status-text" style="color:#FF0033; font-size:32px; text-shadow: 0 0 15px #FF003355;">CONFLUENCE SELL</div></div>', unsafe_allow_html=True)
-        else:
-            st.markdown('<div class="confluence-box"><div class="engine-header">Master Confluence Signal</div><div class="status-text" style="color:#FF9900; font-size:32px; text-shadow: 0 0 15px #FF990055;">CONFLUENCE WAIT</div></div>', unsafe_allow_html=True)
+        # Generate the identical 3 tab choices matching your exact layout images
+        tab_st, tab_mt, tab_lt = st.tabs(["Short-Term\nIntraday - 1 Week", "Medium-Term\n2 Weeks - 1 Month", "Long-Term\n1 - 6 Months"])
+        
+        with tab_st:
+            st.markdown('<div class="section-box"><div class="engine-header">Part 1 Engine</div><div class="engine-title">Macro Fundamental Sentiment</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Fundamental Matrix Arc", fund_score_live, "FUND"), height=255)
+            st.markdown('</div><div class="section-box"><div class="engine-header">Part 2 Engine</div><div class="engine-title">GreenCrow Technical Breakouts</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Technical Breakout Arc", tech_vector, "TECH"), height=255)
+            st.markdown('</div><div class="section-box"><div class="engine-header">Part 3 Engine</div><div class="engine-title">AI Predictive Forecast Oracle</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Short-Term Machine Conviction", ai_st_pct, "AI"), height=255)
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+        with tab_mt:
+            st.markdown('<div class="section-box"><div class="engine-header">Part 3 Engine</div><div class="engine-title">AI Medium-Term Horizon Forecast Oracle</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Medium-Term Machine Conviction", ai_mt_pct, "AI"), height=255)
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+        with tab_lt:
+            st.markdown('<div class="section-box"><div class="engine-header">Part 3 Engine</div><div class="engine-title">AI Long-Term Horizon Forecast Oracle</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Long-Term Machine Conviction", ai_lt_pct, "AI"), height=255)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        # --- PHASE 7: RENDER THE 3 SEPARATE PART GAUGE LAYOUTS ---
-        st.markdown('<div class="section-box"><div class="engine-header">Part 1 Engine Layer</div><div class="engine-title">Macro Fundamental Sentiment (App.py Core Rules)</div>', unsafe_allow_html=True)
-        st.components.v1.html(generate_html_gauge("Fundamental Matrix Arc", fund_score_live, "FUND"), height=255, scrolling=False)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('<div class="section-box"><div class="engine-header">Part 2 Engine Layer</div><div class="engine-title">GreenCrow Technical Breakouts (10/20/100 EMA Setup)</div>', unsafe_allow_html=True)
-        st.components.v1.html(generate_html_gauge("Technical Breakout Arc", tech_vector, "TECH"), height=255, scrolling=False)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('<div class="section-box"><div class="engine-header">Part 3 Engine Layer</div><div class="engine-title">AI Predictive Forecast Oracle (Gradient Boosting Models)</div>', unsafe_allow_html=True)
-        st.components.v1.html(generate_html_gauge("Machine Conviction Arc", ai_buy_pct, "AI"), height=255, scrolling=False)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        # --- PHASE 8: PROFESSIONAL HIGH-CONTRAST DYNAMIC PERFORMANCE MATRIX ---
+        # --- PHASE 7: RENDER THE PROFESSIONAL HIGH-CONTRAST DATA MATRIX ---
         st.markdown("---")
         st.subheader("📋 Macro Portfolio Scorecard Matrix")
         
-        # Inject custom styling rules to color-code positive moves green and negative moves red
         def apply_color_shading(val):
             try:
                 numeric_val = float(val)
                 color = '#00FF66' if numeric_val > 0 else '#FF0033' if numeric_val < 0 else '#C9D1D9'
                 return f'color: {color}; font-weight: bold; font-family: "Consolas", monospace;'
-            except:
-                return 'color: #C9D1D9;'
+            except: return 'color: #C9D1D9;'
                 
         styled_scorecard = df_scorecard.style.map(apply_color_shading, subset=['Change (Points)', 'Change (%)']).format({
-            'Change (Points)': '{:+.2f}', 'Change (%)': '{:+.2f}%'
+            'Change (Points)': '{:+.3f}' if "Yield" in str(df_scorecard['Asset Component Name']) else '{:+.2f}', 
+            'Change (%)': '{:+.2f}%'
         })
         st.dataframe(styled_scorecard, use_container_width=True, hide_index=True)
