@@ -77,7 +77,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
     
     with st.spinner("Downloading historical assets and syncing your strategic rules matrix..."):
         
-        # --- FIXED HARDENED DATA PIPELINES: Expanded lookback depth to 2 Years to guarantee stable datasets ---
+        # --- PHASE 1: DOWNLOAD COMPLETE HISTORICAL DATA FOR ALL YOUR FACTORS ---
         gold_df = yf.Ticker("GC=F").history(period="2y", interval="1d")
         dxy_df  = yf.Ticker("DX-Y.NYB").history(period="2y", interval="1d")
         tlt_df  = yf.Ticker("TLT").history(period="2y", interval="1d")
@@ -167,16 +167,19 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         model_lt.fit(X, df_clean['Target_LT'])
         
         live_input = X.iloc[[-1]]
-        prob_st = model_st.predict_proba(live_input)[0]
-        prob_lt = model_lt.predict_proba(live_input)[0]
+        prob_st = model_st.predict_proba(live_input)
+        prob_lt = model_lt.predict_proba(live_input)
 
         # --- PHASE 5: RENDER THE DEVICE VISUAL INTERFACE PANELS ---
         st.markdown("---")
         
-        # Short Term Cockpit View Card Panel
+        # FIXED ARRAY MAPPINGS: Explicit extraction of index cells from the probability matrix array
+        st_buy  = prob_st[0][1] * 100
+        st_sell = prob_st[0][0] * 100
+        
+        # Short Term Cockpit View Card Panel Layout
         st.markdown('<div class="ai-card">', unsafe_allow_html=True)
         st.markdown('<span class="horizon-title">⚡ SHORT-TERM SCALPER AI (24-48 Hours)</span>', unsafe_allow_html=True)
-        st_buy, st_sell = prob_st[1] * 100, prob_st[0] * 100
         if st_buy >= 53.0:
             st.markdown(f'<div class="signal-text" style="color: #00FF66;">BULLISH SCALPING BUY ({st_buy:.1f}%)</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="prob-bar"><div style="background-color:#00FF66; width:{st_buy}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
@@ -188,10 +191,13 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             st.markdown(f'<div class="prob-bar"><div style="background-color:#FF9900; width:{max(st_buy, st_sell)}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Long Term Cockpit View Card Panel
+        # Fixed long term array matrix cell pulls
+        lt_buy  = prob_lt[0][1] * 100
+        lt_sell = prob_lt[0][0] * 100
+        
+        # Long Term Cockpit View Card Panel Layout
         st.markdown('<div class="ai-card">', unsafe_allow_html=True)
         st.markdown('<span class="horizon-title">🏛️ LONG-TERM MACRO AI (1-2 Weeks)</span>', unsafe_allow_html=True)
-        lt_buy, lt_sell = prob_lt[1] * 100, prob_lt[0] * 100
         if lt_buy >= 53.0:
             st.markdown(f'<div class="signal-text" style="color: #00FF66;">MACRO STRUCTURAL BUY ({lt_buy:.1f}%)</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="prob-bar"><div style="background-color:#00FF66; width:{lt_buy}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
