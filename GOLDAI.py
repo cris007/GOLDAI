@@ -116,7 +116,6 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
     with st.spinner("Processing deep analytics matrix..."):
         
         # --- PHASE 1: UNIFIED HIGH-SPEED BATCH DATA STREAM SYNC ---
-        # Added official federal reserve real yield ticker (DFII10) and full stock index basket
         ticker_symbols = [
             "GC=F", "DX-Y.NYB", "^TNX", "DFII10", "^VIX", "^GSPC", "^IXIC", "^DJI",
             "XAUEUR=X", "GDX", "GDXJ", "GOLD", "NEM", "GFI", "AEM"
@@ -132,7 +131,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             df['Gold_Close'] = batch_data['GC=F']['Close']; df['Gold_High'] = batch_data['GC=F']['High']; df['Gold_Low'] = batch_data['GC=F']['Low']
             df['DXY_Close']  = batch_data['DX-Y.NYB']['Close']
             df['TNX_Close']  = batch_data['^TNX']['Close']   # Nominal Yield
-            df['TIP_Close']  = batch_data['DFII10']['Close']  # Official 10Y Real Yield Ticker
+            df['TIP_Close']  = batch_data['DFII10']['Close']  # Official Real Yield
             df['VIX_Close']  = batch_data['^VIX']['Close']
             df['SPX_Close']  = batch_data['^GSPC']['Close']  # S&P 500 Index
             df['NAS_Close']  = batch_data['^IXIC']['Close']  # Nasdaq 100 Index
@@ -192,16 +191,29 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         df['GC_Sell'] = np.where((df['EMA_10'] < df['EMA_20']) & (df['EMA_20'] < df['EMA_100']) & (df['Gold_Close'] < df['Prev_Low_2']), 1, 0)
         tech_vector   = int(df['GC_Buy'].iloc[-1] - df['GC_Sell'].iloc[-1])
 
-        df['DXY_Pct'] = df['DXY_Close'].pct_change() * 100; df['TLT_Pct'] = df['TLT_Close'].pct_change() * 100; df['SPX_Pct'] = df['SPX_Close'].pct_change() * 100; df['TIP_Pct'] = df['TIP_Close'].pct_change() * 100; df['XAE_Pct'] = df['XAE_Close'].pct_change() * 100
+        # FIXED ALL KEYERROR REFERENCE PIPELINES: Aligned strings cleanly to nominal yields and currency proxies
+        df['DXY_Pct'] = df['DXY_Close'].pct_change() * 100
+        df['TNX_Pct'] = df['TNX_Close'].pct_change() * 100
+        df['SPX_Pct'] = df['SPX_Close'].pct_change() * 100
+        df['TIP_Pct'] = df['TIP_Close'].pct_change() * 100
+        df['XAE_Pct'] = df['XAE_Close'].pct_change() * 100
+        
         m1_up = (df['M1_Close'].pct_change() > 0).astype(int); m2_up = (df['M2_Close'].pct_change() > 0).astype(int); m3_up = (df['M3_Close'].pct_change() > 0).astype(int); m4_up = (df['M4_Close'].pct_change() > 0).astype(int)
         df['Miner_Buy']  = np.where((m1_up == 1) & (m2_up == 1) & (m3_up == 1) & (m4_up == 1), 1, 0)
         df['Miner_Sell'] = np.where((m1_up == 0) & (m2_up == 0) & (m3_up == 0) & (m4_up == 0), 1, 0)
         df['Miner_Vector'] = df['Miner_Buy'] - df['Miner_Sell']
         
-        df['DXY_Pts'] = np.where(df['DXY_Pct'] <= 0, 2.0, -2.0); df['TLT_Pts'] = np.where(df['TLT_Pct'] > 0, 2.0, -2.0); df['VIX_Pts'] = np.where(df['VIX_Close'] > 20, 1.5, -0.5); df['SPY_Pts'] = np.where(df['SPY_Pct'] > 0, -1.0, 1.0); df['TIP_Pts'] = np.where(df['TIP_Pct'] > 0, 1.5, -1.5); df['XAE_Pts'] = np.where(df['XAE_Pct'] > 0, 1.5, -1.0); df['Miner_Pts'] = df['Miner_Vector'] * 2.5
+        df['DXY_Pts'] = np.where(df['DXY_Pct'] <= 0, 2.0, -2.0)
+        df['TLT_Pts'] = np.where(df['TNX_Pct'] < 0, 2.0, -2.0) # Yield inverse logic (Falling yield is bullish)
+        df['VIX_Pts'] = np.where(df['VIX_Close'] > 20, 1.5, -0.5)
+        df['SPY_Points'] = np.where(df['SPX_Pct'] > 0, -1.0, 1.0)
+        df['TIP_Pts'] = np.where(df['TIP_Pct'] < 0, 1.5, -1.5) # Falling real yield is bullish for gold
+        df['XAE_Pts'] = np.where(df['XAE_Pct'] > 0, 1.5, -1.0)
+        df['Miner_Pts'] = df['Miner_Vector'] * 2.5
+        
         live_sent = extract_text_sentiment()
         df['News_Pts'] = np.random.normal(live_sent * 1.5, 0.1, len(df))
-        df['Fund_Score'] = df['DXY_Pts'] + df['TLT_Pts'] + df['VIX_Pts'] + df['SPY_Pts'] + df['TIP_Pts'] + df['XAE_Pts'] + df['Miner_Pts'] + df['News_Pts']
+        df['Fund_Score'] = df['DXY_Pts'] + df['TLT_Pts'] + df['VIX_Pts'] + df['SPY_Points'] + df['TIP_Pts'] + df['XAE_Pts'] + df['Miner_Pts'] + df['News_Pts']
         fund_score_live = float(df['Fund_Score'].iloc[-1])
         # --- PHASE 4: HIGH-SAFETY MACHINE LEARNING TIME HORIZONS ---
         df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)   # Short (2 Days)
@@ -214,12 +226,12 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         else:
             feature_cols = ['GC_Buy', 'GC_Sell', 'Fund_Score', 'DXY_Pts', 'TLT_Pts', 'Miner_Pts', 'VIX_Pts']
             X = df_clean[feature_cols]
-            model_st = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_ST'])
-            model_mt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_MT'])
-            model_lt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_LT'])
-            ai_st_pct = float(model_st.predict_proba(X.iloc[[-1]])[0][1] * 100)
-            ai_mt_pct = float(model_mt.predict_proba(X.iloc[[-1]])[0][1] * 100)
-            ai_lt_pct = float(model_lt.predict_proba(X.iloc[[-1]])[0][1] * 100)
+            model_st = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_ST'])
+            model_mt = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_MT'])
+            model_lt = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_LT'])
+            ai_st_pct = float(model_st.predict_proba(X.iloc[[-1]]) * 100)
+            ai_mt_pct = float(model_mt.predict_proba(X.iloc[[-1]]) * 100)
+            ai_lt_pct = float(model_lt.predict_proba(X.iloc[[-1]]) * 100)
 
         # --- PHASE 5: RE-ENGINEERED SVG GAUGE GENERATOR COMPILER ---
         def generate_html_gauge(title_label, metric_score, type_mode):
@@ -276,7 +288,6 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         st.markdown("---")
         st.subheader("🏁 Master Confluence Radar")
         
-        # Maps 5-tier final directional outputs cleanly across the confluence thresholds
         if conf_score >= 3:
             st.markdown('<div class="confluence-box" style="background:#062613; border-color:#00FF66;"><div class="engine-header">Master Combined Output</div><div class="status-text" style="color:#00FF66; text-shadow: 0 0 15px #00FF66aa;">BUY HARD</div><div class="sub-status">All 3 independent processing dimensions confirm deep macro alignment.</div></div>', unsafe_allow_html=True)
         elif conf_score >= 1:
@@ -310,7 +321,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             st.components.v1.html(generate_html_gauge("Long-Term Machine Conviction", ai_lt_pct, "AI"), height=240)
             st.markdown('</div>', unsafe_allow_html=True)
 
-              # --- PHASE 8: PROFESSIONAL HIGH-CONTRAST DYNAMIC PERFORMANCE MATRIX ---
+                # --- PHASE 8: PROFESSIONAL HIGH-CONTRAST DYNAMIC PERFORMANCE MATRIX ---
         st.markdown("---")
         st.subheader("📋 Macro Portfolio Scorecard Matrix")
         
@@ -325,10 +336,9 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
                 
         # Format points and percentages cleanly based on asset type structures
         styled_scorecard = df_scorecard.style.map(apply_color_shading, subset=['Change (Points)', 'Change (%)']).format({
-            'Change (Points)': '{:+.3f}' if any(y in str(df_scorecard['Asset Component Name']) for y in ['Yield', 'DFII10']) else '{:+.2f}',
+            'Change (Points)': '{:+.3f}' if any(y in str(df_scorecard['Asset Component Name']) for y in ['Yield', 'DFII10', '^TNX']) else '{:+.2f}',
             'Change (%)': '{:+.2f}%'
         })
         
         # Output the professional data grid onto your mobile screen canvas
         st.dataframe(styled_scorecard, use_container_width=True, hide_index=True)
-
