@@ -13,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom Institutional CSS Injector Layer
+# Custom Institutional CSS Injector Layer for Premium Dark UI
 st.markdown("""
     <style>
     .ai-card {
@@ -47,9 +47,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🔱 Gold Hybrid AI Oracle Cockpit")
-st.markdown("##### Constrained Machine Learning System (Green Crow Tech + App.py Macro Filters)")
-
 def extract_text_sentiment():
     bullish_keys = ['rate cut', 'recession', 'banking crisis', 'safe haven', 'war', 'panic', 'escalation', 'fed dovish']
     bearish_keys = ['rate hike', 'strong jobs', 'fed hawkish', 'gdp growth', 'economic boom', 'dollar surge']
@@ -72,13 +69,70 @@ def extract_text_sentiment():
                     if word in title: net_score -= 1
         except: pass
     return net_score / item_count if item_count > 0 else 0.0
+
+def calculate_headline_sentiment(headline_text):
+    text_lower = headline_text.lower()
+    bullish_keywords = ['rate cut', 'inflation spike', 'recession', 'escalation', 'safe haven', 'banking crisis', 'fed dovish', 'gold rally', 'crisis', 'panic', 'war', 'geopolitical', 'uncertainty']
+    bearish_keywords = ['rate hike', 'strong jobs', 'fed hawkish', 'gdp growth', 'economic boom', 'dollar surge', 'inflation falls']
+    score = 0.0
+    for word in bullish_keywords:
+        if word in text_lower: score += 1.5
+    for word in bearish_keywords:
+        if word in text_lower: score -= 1.5
+    return score
+# --- STEP 1: HARDENED DATA FETCHING ENGINE FOR HEADER METRICS ---
+def fetch_header_metrics():
+    symbols = {"XAUUSD": "GC=F", "DXY": "DX-Y.NYB", "US10Y": "^TNX"}
+    metrics = {}
+    
+    for key, sym in symbols.items():
+        try:
+            ticker = yf.Ticker(sym)
+            # Safe weekend historical close fallback protocol
+            data = ticker.history(period="5d")
+            if not data.empty:
+                current_price = data['Close'].iloc[-1]
+                metrics[key] = {"val": current_price}
+            else:
+                metrics[key] = {"val": 0.0}
+        except:
+            metrics[key] = {"val": 0.0}
+            
+    return metrics
+
+# Execute data fetching for header blocks
+metrics_data = fetch_header_metrics()
+
+# --- STEP 2: HTML/CSS INJECTION LAYER FOR THE BULLION DESK TERMINAL HEADER ---
+st.markdown(f"""
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #0D1117; border: 1px solid #21262D; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
+        <div>
+            <div style="font-size: 18px; font-weight: bold; color: #FFD700; letter-spacing: 0.5px;">BULLION DESK</div>
+            <div style="font-size: 12px; color: #8B949E;">Gold Fundamental Research Terminal</div>
+        </div>
+        <div style="display: flex; gap: 25px; text-align: right;">
+            <div>
+                <div style="font-size: 11px; color: #8B949E; text-transform: uppercase;">XAU/USD</div>
+                <div style="font-size: 15px; font-weight: bold; color: #FFFFFF;">${metrics_data['XAUUSD']['val']:.2f}</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #8B949E; text-transform: uppercase;">DXY</div>
+                <div style="font-size: 15px; font-weight: bold; color: #FFFFFF;">{metrics_data['DXY']['val']:.2f}</div>
+            </div>
+            <div>
+                <div style="font-size: 11px; color: #8B949E; text-transform: uppercase;">US10Y</div>
+                <div style="font-size: 15px; font-weight: bold; color: #FFFFFF;">{metrics_data['US10Y']['val']:.3f}%</div>
+            </div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
 # Processing Trigger Button
 if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_container_width=True):
     
-    with st.spinner("Executing high-speed batch downloads and syncing rules..."):
+    with st.spinner("Downloading historical assets and syncing your strategic rules matrix..."):
         
-        # --- FIXED BULLETPROOF BATCH DOWNLOAD ENGINES ---
-        # Fetching all 11 global macro assets in one single package data request string
+        # --- PHASE 1: DOWNLOAD COMPLETE HISTORICAL DATA FOR ALL YOUR FACTORS ---
         ticker_symbols = ["GC=F", "DX-Y.NYB", "TLT", "^VIX", "SPY", "TIP", "FXE", "GOLD", "NEM", "GFI", "AEM", "GDXJ"]
         
         try:
@@ -87,7 +141,6 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             st.error(f"⚠️ Yahoo Finance server ping error: {str(e)}")
             st.stop()
             
-        # Isolate closing historical rows safely inside a consolidated core dataframe table grid
         df = pd.DataFrame()
         try:
             df['Gold_Close'] = batch_data['GC=F']['Close']
@@ -100,17 +153,15 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             df['TIP_Close']  = batch_data['TIP']['Close']
             df['FXE_Close']  = batch_data['FXE']['Close']
             
-            # Gold Miner Closures
             df['M1_Close']   = batch_data['GOLD']['Close']
             df['M2_Close']   = batch_data['NEM']['Close']
             df['M3_Close']   = batch_data['GFI']['Close']
             df['M4_Close']   = batch_data['AEM']['Close']
             df['M5_Close']   = batch_data['GDXJ']['Close']
         except KeyError as ke:
-            st.error("⚠️ Server returned incomplete fields over the holiday weekend. Please re-run scan.")
+            st.error("⚠️ Server returned incomplete fields over the weekend. Please re-run scan.")
             st.stop()
             
-        # Complete clean gap-filling to secure historical matrix integrity
         df = df.ffill().bfill()
 
         # --- PHASE 2: HARD-CODE YOUR GREEN CROW TECHNICAL INDICATORS ---
@@ -154,10 +205,9 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         df['News_Sentiment_Points'] = np.random.normal(live_sentiment * 1.5, 0.1, len(df))
         
         df['App_Py_Fundamental_Score'] = df['DXY_Points'] + df['TLT_Points'] + df['VIX_Points'] + df['SPY_Points'] + df['TIP_Points'] + df['FXE_Points'] + df['Miner_Points'] + df['News_Sentiment_Points']
-        # --- PHASE 4: ENGINEER MULTI-HORIZON TARGETS MATRIX ---
+        # --- PHASE 4: ENGINEER MULTI-HORIZON MACHINE TRAINING LEARNING ---
         df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)
         df['Target_LT'] = np.where(df['Gold_Close'].shift(-10) > df['Gold_Close'], 1, 0)
-        
         df_clean = df.dropna().copy()
         
         if df_clean.empty or len(df_clean) < 10:
@@ -166,7 +216,6 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             feature_cols = ['Green_Crow_Vector', 'App_Py_Fundamental_Score', 'DXY_Points', 'TLT_Points', 'Miner_Points', 'TIP_Points', 'VIX_Points']
             X = df_clean[feature_cols]
             
-            # Train the Classifiers
             model_st = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42)
             model_st.fit(X, df_clean['Target_ST'])
             
@@ -179,55 +228,58 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
 
             # --- PHASE 5: RENDER THE DEVICE VISUAL INTERFACE PANELS ---
             st.markdown("---")
-            
-            # Extract array slices using strict scalar mappings to eliminate runtime warnings
             st_buy  = float(prob_st[0][1] * 100)
             st_sell = float(prob_st[0][0] * 100)
             
-            st.markdown('<div class="ai-card">', unsafe_allow_html=True)
-            st.markdown('<span class="horizon-title">⚡ SHORT-TERM SCALPER AI (24-48 Hours)</span>', unsafe_allow_html=True)
-            if st_buy >= 53.0:
-                st.markdown(f'<div class="signal-text" style="color: #00FF66;">BULLISH SCALPING BUY ({st_buy:.1f}%)</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="prob-bar"><div style="background-color:#00FF66; width:{st_buy}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
-            elif st_sell >= 53.0:
-                st.markdown(f'<div class="signal-text" style="color: #FF0033;">BEARISH SCALPING SELL ({st_sell:.1f}%)</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="prob-bar"><div style="background-color:#FF0033; width:{st_sell}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="signal-text" style="color: #FF9900;">SIDEWAYS CONSOLIDATION WAIT ({max(st_buy, st_sell):.1f}%)</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="prob-bar"><div style="background-color:#FF9900; width:{max(st_buy, st_sell)}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            label_text = "NEUTRAL"
+            panel_color = "#FF9900"
+            needle_angle = 90
             
-            lt_buy  = float(prob_lt[0][1] * 100)
-            lt_sell = float(prob_lt[0][0] * 100)
-            
-            st.markdown('<div class="ai-card">', unsafe_allow_html=True)
-            st.markdown('<span class="horizon-title">🏛️ LONG-TERM MACRO AI (1-2 Weeks)</span>', unsafe_allow_html=True)
-            if lt_buy >= 53.0:
-                st.markdown(f'<div class="signal-text" style="color: #00FF66;">MACRO STRUCTURAL BUY ({lt_buy:.1f}%)</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="prob-bar"><div style="background-color:#00FF66; width:{lt_buy}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
-            elif lt_sell >= 53.0:
-                st.markdown(f'<div class="signal-text" style="color: #FF0033;">MACRO STRUCTURAL SELL ({lt_sell:.1f}%)</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="prob-bar"><div style="background-color:#FF0033; width:{lt_sell}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="signal-text" style="color: #FF9900;">MACRO ACCUMULATION WAIT ({max(lt_buy, lt_sell):.1f}%)</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="prob-bar"><div style="background-color:#FF9900; width:{max(lt_buy, lt_sell)}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            if st_buy >= 53.0: 
+                label_text, panel_color = "BUY", "#00FF66"
+                needle_angle = 135
+            elif st_sell >= 53.0: 
+                label_text, panel_color = "SELL", "#FF0033"
+                needle_angle = 45
 
-            # --- PHASE 6: RENDER REGULATORY DECISION MATRIX STREAMS ---
-            st.subheader("📋 Rule Convergence Importance Scores")
-            importances = model_lt.feature_importances_
-            feature_importance_df = pd.DataFrame({
-                "Strategic Engine Parameter Input": [
-                    "Green Crow Technical Setup Vector (10/20/100 EMA + Breakouts)",
-                    "App.py Cumulative Fundamental Score (Total Multi-Sector Points)",
-                    "US Dollar Index Velocity Direction (DXY Points)",
-                    "US10Y Yield Inverse Flow Direction (TLT Points)",
-                    "Institutional Mining Unanimous Allocation Vector (Giants Voting)",
-                    "Real Interest Rates Opportunity Cost Vector (TIP Points)",
-                    "CBOE Market Fear Risk-Aversion Gauge (VIX Points)"
-                ],
-                "AI Network Brain Dependence Allocation": importances
-            }).sort_values(by="AI Network Brain Dependence Allocation", ascending=False)
+            # HTML Injection Layer for the Semi-Circle Gauge Dashboard Cockpit
+            st.markdown(f"""
+                <div class="gauge-container">
+                    <div class="gauge-bg">
+                        <svg viewBox="0 0 200 110" width="100%" height="100%" style="max-width: 320px;">
+                            <path d="M20,100 A80,80 0 0,1 180,100" fill="none" stroke="#22332A" stroke-width="12" stroke-linecap="round"/>
+                            <path d="M20,100 A80,80 0 0,1 60,43" fill="none" stroke="#FF0033" stroke-width="4" opacity="0.4"/>
+                            <path d="M60,43 A80,80 0 0,1 140,43" fill="none" stroke="#FF9900" stroke-width="4" opacity="0.4"/>
+                            <path d="M140,43 A80,80 0 0,1 180,100" fill="none" stroke="#00FF66" stroke-width="4" opacity="0.4"/>
+                            <text x="5" y="108" fill="#889988" font-size="7" font-family="Arial" text-anchor="start">BEAR</text>
+                            <text x="100" y="14" fill="#889988" font-size="8" font-family="Arial" text-anchor="middle" font-weight="bold">NEUTRAL</text>
+                            <text x="195" y="108" fill="#889988" font-size="7" font-family="Arial" text-anchor="end">BULL</text>
+                            <circle cx="100" cy="100" r="6" fill="#FFFFFF" stroke="#121A16" stroke-width="2"/>
+                            <line x1="100" y1="100" x2="100" y2="28" stroke="{panel_color}" stroke-width="3" stroke-linecap="round"
+                                  transform="rotate({needle_angle - 90} 100 100)" style="transition: transform 0.5s ease-in-out;"/>
+                        </svg>
+                        <div class="status-text" style="color: {panel_color}; text-shadow: 0 0 12px {panel_color}55; margin-top: -5px;">{label_text}</div>
+                        <div style="font-size: 12px; color: #8B949E; margin-top: 2px;">confidence: medium</div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # --- PHASE 6: RENDER THE PROFESSIONAL DYNAMIC DRIVER CHECKLIST ---
+            st.markdown("---")
+            st.subheader("📋 Driver Checklist")
             
-            feature_importance_df["AI Network Brain Dependence Allocation"] = feature_importance_df["AI Network Brain Dependence Allocation"].map(lambda x: f"{x*100:.2f}%")
-            st.dataframe(feature_importance_df, use_container_width=True, hide_index=True)
+            # Map clean status metrics rows to match your dashboard page wireframes
+            drivers_list = [
+                "USD / DXY Market Pressure", "Real Yields Cost Opportunity", "Fed Policy Stance Guidance",
+                "Geopolitical Risk Premium Escalation", "Central Bank Buying Inflows", "ETF / Fund Flows Accumulation"
+            ]
+            
+            for item in drivers_list:
+                st.markdown(f"""
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #161B22; border: 1px solid #21262D; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px;">
+                        <div style="font-size: 14px; font-weight: 500; color: #C9D1D9;">🔸 {item}</div>
+                        <div style="background-color: #2A2415; color: #FF9900; font-size: 11px; font-weight: bold; padding: 4px 12px; border-radius: 20px; border: 1px solid #FF990033; letter-spacing: 0.5px;">
+                            REFERENCED
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
