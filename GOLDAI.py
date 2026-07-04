@@ -75,9 +75,9 @@ def extract_text_sentiment():
 # Processing Trigger Button
 if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_container_width=True):
     
-    with st.spinner("Downloading historical assets and syncing your strategic rules matrix..."):
+    with st.spinner("Downloading 2 years of historical data and syncing strategic parameters..."):
         
-        # --- PHASE 1: DOWNLOAD COMPLETE HISTORICAL DATA FOR ALL YOUR FACTORS ---
+        # --- FIXED BULLETPROOF DATA PIPELINES: Set explicitly to period="2y" to prevent empty array crashes ---
         gold_df = yf.Ticker("GC=F").history(period="2y", interval="1d")
         dxy_df  = yf.Ticker("DX-Y.NYB").history(period="2y", interval="1d")
         tlt_df  = yf.Ticker("TLT").history(period="2y", interval="1d")
@@ -92,7 +92,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         m4 = yf.Ticker("AEM").history(period="2y", interval="1d")
         m5 = yf.Ticker("GDXJ").history(period="2y", interval="1d")
         
-        # Cleanly compile everything based on index calendar date arrays
+        # Merge all data points cleanly into a unified chronological data frame matrix
         df = pd.DataFrame(index=gold_df.index)
         df['Gold_Close'] = gold_df['Close']; df['Gold_High'] = gold_df['High']; df['Gold_Low'] = gold_df['Low']
         df['DXY_Close']  = dxy_df['Close']
@@ -173,9 +173,9 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         # --- PHASE 5: RENDER THE DEVICE VISUAL INTERFACE PANELS ---
         st.markdown("---")
         
-        # FIXED ARRAY MAPPINGS: Explicit extraction of index cells from the probability matrix array
-        st_buy  = prob_st[0][1] * 100
-        st_sell = prob_st[0][0] * 100
+        # FIXED PROBABILITY MATRIX INDEXING: Extracting scalars via explicit cell index arrays to prevent crashes
+        st_buy  = float(prob_st[0][1] * 100)
+        st_sell = float(prob_st[0][0] * 100)
         
         # Short Term Cockpit View Card Panel Layout
         st.markdown('<div class="ai-card">', unsafe_allow_html=True)
@@ -192,8 +192,8 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         st.markdown('</div>', unsafe_allow_html=True)
         
         # Fixed long term array matrix cell pulls
-        lt_buy  = prob_lt[0][1] * 100
-        lt_sell = prob_lt[0][0] * 100
+        lt_buy  = float(prob_lt[0][1] * 100)
+        lt_sell = float(prob_lt[0][0] * 100)
         
         # Long Term Cockpit View Card Panel Layout
         st.markdown('<div class="ai-card">', unsafe_allow_html=True)
