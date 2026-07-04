@@ -233,7 +233,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             ai_mt_pct = float(model_mt.predict_proba(X.iloc[[-1]]) * 100)
             ai_lt_pct = float(model_lt.predict_proba(X.iloc[[-1]]) * 100)
 
-        # --- PHASE 5: RE-ENGINEERED SVG GAUGE GENERATOR COMPILER ---
+               # --- PHASE 5: RE-ENGINEERED SVG GAUGE GENERATOR COMPILER (FIXED FOR ZERO TEXT CLIPPING) ---
         def generate_html_gauge(title_label, metric_score, type_mode):
             if type_mode == "TECH":
                 if metric_score == 1: lbl, col, angle = "BUY HARD", "#00FF66", 155
@@ -253,21 +253,26 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
                 else: lbl, col, angle = "NEUTRAL", "#FF9900", 90
 
             return f"""
-            <div style="display: flex; justify-content: center; align-items: center; background: #161B22; border: 1px solid #21262D; padding: 20px; border-radius: 12px; font-family: Arial, sans-serif; box-sizing: border-box;">
-                <div style="width: 100%; max-width: 380px; text-align: center;">
+            <div style="display: flex; justify-content: center; align-items: center; background: #161B22; border: 1px solid #21262D; padding: 25px; border-radius: 12px; font-family: Arial, sans-serif; box-sizing: border-box;">
+                <div style="width: 100%; max-width: 420px; text-align: center;"> <!-- INCREASED MAX-WIDTH TO GIVE SIDEWAYS LEAN -->
                     <div style="font-size: 12px; text-transform: uppercase; color: #8B949E; font-weight: bold; letter-spacing: 1px;">{title_label}</div>
-                    <svg viewBox="0 0 200 130" width="100%" height="100%" style="max-width: 250px; margin-top: 15px; overflow: visible;">
+                    
+                    <!-- EXPANDED VIEWBOX BOUNDARIES: Widened width canvas space to 220 and height padding to 140 to insulate the outer edge labels -->
+                    <svg viewBox="-10 0 220 140" width="100%" height="100%" style="max-width: 290px; margin-top: 15px; overflow: visible;">
                         <path d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="#22332A" stroke-width="14" stroke-linecap="round"/>
                         <path d="M20,110 A80,80 0 0,1 60,53" fill="none" stroke="#FF0033" stroke-width="5" opacity="0.4"/>
                         <path d="M60,53 A80,80 0 0,1 90,34" fill="none" stroke="#FF8888" stroke-width="5" opacity="0.4"/>
                         <path d="M90,34 A80,80 0 0,1 110,34" fill="none" stroke="#FF9900" stroke-width="5" opacity="0.4"/>
                         <path d="M110,34 A80,80 0 0,1 140,53" fill="none" stroke="#88FF88" stroke-width="5" opacity="0.4"/>
                         <path d="M140,53 A80,80 0 0,1 180,110" fill="none" stroke="#00FF66" stroke-width="5" opacity="0.4"/>
-                        <text x="5" y="122" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="start">SELL HARD</text>
+                        
+                        <!-- PUSHED COORDINATES OUTWARD: Shifted x coordinates backward/forward to sit in the newly generated margin padding gaps -->
+                        <text x="0" y="124" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="start">SELL HARD</text>
                         <text x="44" y="46" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="middle">SELL</text>
                         <text x="100" y="20" fill="#8B949E" font-size="8" font-weight="bold" text-anchor="middle">NEUTRAL</text>
                         <text x="156" y="46" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="middle">BUY</text>
-                        <text x="195" y="122" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="end">BUY HARD</text>
+                        <text x="200" y="124" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="end">BUY HARD</text>
+                        
                         <circle cx="100" cy="110" r="6" fill="#FFFFFF" stroke="#121A16" stroke-width="2"/>
                         <line x1="100" y1="110" x2="100" y2="36" stroke="{col}" stroke-width="3" stroke-linecap="round" transform="rotate({angle - 90} 100 110)" style="transition: transform 0.6s ease-in-out; filter: drop-shadow(0px 0px 4px {col}aa);"/>
                     </svg>
@@ -275,6 +280,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
                 </div>
             </div>
             """
+
 
         # --- PHASE 6: CALCULATE AND RENDER MASTER SIGNAL RECONCILIATION AREA ---
         conf_score = 0
