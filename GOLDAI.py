@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-# 1. Page Configuration for optimal mobile responsive viewing
+# 1. Page Configuration for optimal mobile layout responsive display
 st.set_page_config(
     page_title="Gold Predictive AI Oracle",
     page_icon="🤖",
@@ -72,37 +72,25 @@ def extract_text_sentiment():
                     if word in title: net_score -= 1
         except: pass
     return net_score / item_count if item_count > 0 else 0.0
-
-def calculate_headline_sentiment(headline_text):
-    text_lower = headline_text.lower()
-    bullish_keywords = ['rate cut', 'inflation spike', 'recession', 'escalation', 'safe haven', 'banking crisis', 'fed dovish', 'gold rally', 'crisis', 'panic', 'war', 'geopolitical', 'uncertainty']
-    bearish_keywords = ['rate hike', 'strong jobs', 'fed hawkish', 'gdp growth', 'economic boom', 'dollar surge', 'inflation falls']
-    score = 0.0
-    for word in bullish_keywords:
-        if word in text_lower: score += 1.5
-    for word in bearish_keywords:
-        if word in text_lower: score -= 1.5
-    return score
 # Processing Trigger Button
 if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_container_width=True):
     
     with st.spinner("Downloading historical assets and syncing your strategic rules matrix..."):
         
-        # --- PHASE 1: DOWNLOAD COMPLETE HISTORICAL DATA FOR ALL YOUR FACTORS ---
-        gold_df = yf.Ticker("GC=F").history(period="7d")
-        dxy_df  = yf.Ticker("DX-Y.NYB").history(period="7d")
-        tlt_df  = yf.Ticker("TLT").history(period="7d")
-        vix_df  = yf.Ticker("^VIX").history(period="7d")
-        spy_df  = yf.Ticker("SPY").history(period="7d")
-        tip_df  = yf.Ticker("TIP").history(period="7d")
-        fxe_df  = yf.Ticker("FXE").history(period="7d")
+        # --- FIXED HARDENED DATA PIPELINES: Expanded lookback depth to 2 Years to guarantee stable datasets ---
+        gold_df = yf.Ticker("GC=F").history(period="2y", interval="1d")
+        dxy_df  = yf.Ticker("DX-Y.NYB").history(period="2y", interval="1d")
+        tlt_df  = yf.Ticker("TLT").history(period="2y", interval="1d")
+        vix_df  = yf.Ticker("^VIX").history(period="2y", interval="1d")
+        spy_df  = yf.Ticker("SPY").history(period="2y", interval="1d")
+        tip_df  = yf.Ticker("TIP").history(period="2y", interval="1d")
+        fxe_df  = yf.Ticker("FXE").history(period="2y", interval="1d")
         
-        # Download your exact 5 Gold Mining giants
-        m1 = yf.Ticker("GOLD").history(period="7d")
-        m2 = yf.Ticker("NEM").history(period="7d")
-        m3 = yf.Ticker("GFI").history(period="7d")
-        m4 = yf.Ticker("AEM").history(period="7d")
-        m5 = yf.Ticker("GDXJ").history(period="7d")
+        m1 = yf.Ticker("GOLD").history(period="2y", interval="1d")
+        m2 = yf.Ticker("NEM").history(period="2y", interval="1d")
+        m3 = yf.Ticker("GFI").history(period="2y", interval="1d")
+        m4 = yf.Ticker("AEM").history(period="2y", interval="1d")
+        m5 = yf.Ticker("GDXJ").history(period="2y", interval="1d")
         
         # Cleanly compile everything based on index calendar date arrays
         df = pd.DataFrame(index=gold_df.index)
