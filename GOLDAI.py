@@ -75,35 +75,42 @@ def extract_text_sentiment():
 # Processing Trigger Button
 if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_container_width=True):
     
-    with st.spinner("Downloading historical assets and syncing your strategic rules matrix..."):
+    with st.spinner("Executing high-speed batch downloads and syncing rules..."):
         
-        # --- PHASE 1: SAFE SECTOR DOWNLOADS WITH CODES FALLBACKS ---
-        gold_df = yf.Ticker("GC=F").history(period="2y", interval="1d")
+        # --- FIXED BULLETPROOF BATCH DOWNLOAD ENGINES ---
+        # Fetching all 11 global macro assets in one single package data request string
+        ticker_symbols = ["GC=F", "DX-Y.NYB", "TLT", "^VIX", "SPY", "TIP", "FXE", "GOLD", "NEM", "GFI", "AEM", "GDXJ"]
         
-        # Master training index base locked strictly onto Gold's active historical days
-        df = pd.DataFrame(index=gold_df.index)
-        df['Gold_Close'] = gold_df['Close']
-        df['Gold_High']  = gold_df['High']
-        df['Gold_Low']   = gold_df['Low']
-        
-        tickers = {
-            'DXY_Close': 'DX-Y.NYB', 'TLT_Close': 'TLT', 'VIX_Close': '^VIX',
-            'SPY_Close': 'SPY', 'TIP_Close': 'TIP', 'FXE_Close': 'FXE',
-            'M1_Close': 'GOLD', 'M2_Close': 'NEM', 'M3_Close': 'GFI',
-            'M4_Close': 'AEM', 'M5_Close': 'GDXJ'
-        }
-        
-        for col_name, sym in tickers.items():
-            try:
-                asset_data = yf.Ticker(sym).history(period="2y", interval="1d")
-                if not asset_data.empty:
-                    df[col_name] = asset_data['Close']
-                else:
-                    df[col_name] = np.nan
-            except:
-                df[col_name] = np.nan
-                
-        # FIXED WEEKEND GAP FAILING BUG: Forward-fill and backward-fill missing weekend/holiday data cells
+        try:
+            batch_data = yf.download(ticker_symbols, period="2y", interval="1d", group_by='ticker', progress=False)
+        except Exception as e:
+            st.error(f"⚠️ Yahoo Finance server ping error: {str(e)}")
+            st.stop()
+            
+        # Isolate closing historical rows safely inside a consolidated core dataframe table grid
+        df = pd.DataFrame()
+        try:
+            df['Gold_Close'] = batch_data['GC=F']['Close']
+            df['Gold_High']  = batch_data['GC=F']['High']
+            df['Gold_Low']   = batch_data['GC=F']['Low']
+            df['DXY_Close']  = batch_data['DX-Y.NYB']['Close']
+            df['TLT_Close']  = batch_data['TLT']['Close']
+            df['VIX_Close']  = batch_data['^VIX']['Close']
+            df['SPY_Close']  = batch_data['SPY']['Close']
+            df['TIP_Close']  = batch_data['TIP']['Close']
+            df['FXE_Close']  = batch_data['FXE']['Close']
+            
+            # Gold Miner Closures
+            df['M1_Close']   = batch_data['GOLD']['Close']
+            df['M2_Close']   = batch_data['NEM']['Close']
+            df['M3_Close']   = batch_data['GFI']['Close']
+            df['M4_Close']   = batch_data['AEM']['Close']
+            df['M5_Close']   = batch_data['GDXJ']['Close']
+        except KeyError as ke:
+            st.error("⚠️ Server returned incomplete fields over the holiday weekend. Please re-run scan.")
+            st.stop()
+            
+        # Complete clean gap-filling to secure historical matrix integrity
         df = df.ffill().bfill()
 
         # --- PHASE 2: HARD-CODE YOUR GREEN CROW TECHNICAL INDICATORS ---
@@ -151,17 +158,15 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)
         df['Target_LT'] = np.where(df['Gold_Close'].shift(-10) > df['Gold_Close'], 1, 0)
         
-        # Only drops the first 100 historical rows consumed by the EMA 100 calculation
         df_clean = df.dropna().copy()
         
-        # FIXED ARRAY EMPTY GATES BLOCKER: Safe-guard deployment if server data errors occur
         if df_clean.empty or len(df_clean) < 10:
-            st.error("⚠️ Global market database sync timeout. Please wait 10 seconds and try again.")
+            st.error("⚠️ Insufficient synchronized historical row counts. Please run execution scan again.")
         else:
             feature_cols = ['Green_Crow_Vector', 'App_Py_Fundamental_Score', 'DXY_Points', 'TLT_Points', 'Miner_Points', 'TIP_Points', 'VIX_Points']
             X = df_clean[feature_cols]
             
-            # Train Classifiers on your exact strategy vectors
+            # Train the Classifiers
             model_st = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42)
             model_st.fit(X, df_clean['Target_ST'])
             
@@ -175,11 +180,10 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             # --- PHASE 5: RENDER THE DEVICE VISUAL INTERFACE PANELS ---
             st.markdown("---")
             
-            # FIXED PROBABILITY MATRIX INDEX SELECTION CELLS: Extracted perfectly as scalar variables
+            # Extract array slices using strict scalar mappings to eliminate runtime warnings
             st_buy  = float(prob_st[0][1] * 100)
             st_sell = float(prob_st[0][0] * 100)
             
-            # Short Term Cockpit View Card Panel Layout
             st.markdown('<div class="ai-card">', unsafe_allow_html=True)
             st.markdown('<span class="horizon-title">⚡ SHORT-TERM SCALPER AI (24-48 Hours)</span>', unsafe_allow_html=True)
             if st_buy >= 53.0:
@@ -193,11 +197,9 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
                 st.markdown(f'<div class="prob-bar"><div style="background-color:#FF9900; width:{max(st_buy, st_sell)}%; height:100%; border-radius:5px;"></div></div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # Fixed long term array matrix cell pulls
             lt_buy  = float(prob_lt[0][1] * 100)
             lt_sell = float(prob_lt[0][0] * 100)
             
-            # Long Term Cockpit View Card Panel Layout
             st.markdown('<div class="ai-card">', unsafe_allow_html=True)
             st.markdown('<span class="horizon-title">🏛️ LONG-TERM MACRO AI (1-2 Weeks)</span>', unsafe_allow_html=True)
             if lt_buy >= 53.0:
