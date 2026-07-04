@@ -5,36 +5,36 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-# 1. Page Configuration for absolute optimal mobile layout responsive display
+# 1. Page Configuration for responsive layout structure
 st.set_page_config(
-    page_title="Gold Predictive AI Oracle",
-    page_icon="🤖",
+    page_title="Gold Intelligence Cockpit",
+    page_icon="⚜️",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Custom Institutional CSS Injector Layer
+# Custom Institutional CSS Injector Sheet for Premium UI Experience
 st.markdown("""
     <style>
+    .reportview-container .main .block-container { padding-top: 1.5rem; }
     .section-box {
         background: #0D1117;
         border: 1px solid #21262D;
-        padding: 22px;
+        padding: 24px;
         border-radius: 12px;
         margin-bottom: 25px;
         box-sizing: border-box;
     }
     .confluence-box {
-        background: #121A16;
-        border: 2px solid #233D2A;
-        padding: 25px;
-        border-radius: 14px;
-        margin-bottom: 30px;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 25px;
         text-align: center;
         box-sizing: border-box;
+        border: 1px solid rgba(255,255,255,0.1);
     }
     .engine-header {
-        font-size: 13px;
+        font-size: 12px;
         text-transform: uppercase;
         color: #8B949E;
         letter-spacing: 1.5px;
@@ -42,23 +42,28 @@ st.markdown("""
         margin-bottom: 5px;
     }
     .engine-title {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
         color: #FFFFFF;
         margin-bottom: 15px;
     }
     .status-text {
-        font-size: 24px;
+        font-size: 28px;
         font-weight: bold;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
+        letter-spacing: 2px;
+        margin-top: 5px;
+    }
+    .sub-status {
+        font-size: 13px;
+        color: #8B949E;
         margin-top: 5px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🔱 Gold Triple-Engine Intelligence Terminal")
-st.markdown("##### Multi-Horizon Confluence Matrix (Technical + Fundamental + AI Machine Learning)")
+st.title("⚜️ Gold Alpha Intelligence Cockpit")
+st.markdown("##### Institutional Macroeconomic Alignment & Sentiment Consensus Matrix")
 
 def extract_text_sentiment():
     bullish_keys = ['rate cut', 'recession', 'banking crisis', 'safe haven', 'war', 'panic', 'escalation', 'fed dovish']
@@ -111,7 +116,11 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
     with st.spinner("Processing deep analytics matrix..."):
         
         # --- PHASE 1: UNIFIED HIGH-SPEED BATCH DATA STREAM SYNC ---
-        ticker_symbols = ["GC=F", "DX-Y.NYB", "TLT", "^TNX", "^VIX", "SPY", "TIP", "XAUEUR=X", "GDX", "GDXJ", "GOLD", "NEM", "GFI", "AEM"]
+        # Added official federal reserve real yield ticker (DFII10) and full stock index basket
+        ticker_symbols = [
+            "GC=F", "DX-Y.NYB", "^TNX", "DFII10", "^VIX", "^GSPC", "^IXIC", "^DJI",
+            "XAUEUR=X", "GDX", "GDXJ", "GOLD", "NEM", "GFI", "AEM"
+        ]
         try:
             batch_data = yf.download(ticker_symbols, period="2y", interval="1d", group_by='ticker', progress=False)
         except:
@@ -122,11 +131,12 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         try:
             df['Gold_Close'] = batch_data['GC=F']['Close']; df['Gold_High'] = batch_data['GC=F']['High']; df['Gold_Low'] = batch_data['GC=F']['Low']
             df['DXY_Close']  = batch_data['DX-Y.NYB']['Close']
-            df['TLT_Close']  = batch_data['TLT']['Close']
-            df['TNX_Close']  = batch_data['^TNX']['Close'] # Nominal Yield
+            df['TNX_Close']  = batch_data['^TNX']['Close']   # Nominal Yield
+            df['TIP_Close']  = batch_data['DFII10']['Close']  # Official 10Y Real Yield Ticker
             df['VIX_Close']  = batch_data['^VIX']['Close']
-            df['SPY_Close']  = batch_data['SPY']['Close']
-            df['TIP_Close']  = batch_data['TIP']['Close']  # Real Yield Proxy
+            df['SPX_Close']  = batch_data['^GSPC']['Close']  # S&P 500 Index
+            df['NAS_Close']  = batch_data['^IXIC']['Close']  # Nasdaq 100 Index
+            df['DJI_Close']  = batch_data['^DJI']['Close']   # Dow Jones Index
             df['XAE_Close']  = batch_data['XAUEUR=X']['Close']
             df['GDX_Close']  = batch_data['GDX']['Close']
             df['GDXJ_Close'] = batch_data['GDXJ']['Close']
@@ -135,17 +145,18 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             st.error("⚠️ Server returned incomplete fields over the weekend. Please refresh.")
             st.stop()
             
-        # FIXED CRITICAL DATA DROP VALUE ERROR: Gap-fill empty cells FIRST before processing indicators or rolling metrics
         df = df.ffill().bfill()
 
         # --- PHASE 2: GENERATE THE METRICS SCORECARD TABLE ROWS ---
         table_rows = []
         assets_mapping = {
-            "DXY Index (US Dollar)": "DXY_Close",
+            "DXY Index (US Dollar Strength)": "DXY_Close",
             "US 10Y Treasury Nominal Yield (^TNX)": "TNX_Close",
-            "US 10Y Treasury Real Yield Proxy (TIP)": "TIP_Close",
-            "Volatility Fear Gauge (VIX)": "VIX_Close",
-            "Stock Market Index (SPY)": "SPY_Close",
+            "US 10Y Treasury Real Yield (DFII10)": "TIP_Close",
+            "CBOE Volatility Fear Gauge (VIX)": "VIX_Close",
+            "S&P 500 Stock Index (^GSPC)": "SPX_Close",
+            "Nasdaq 100 Stock Index (^IXIC)": "NAS_Close",
+            "Dow Jones Stock Index (^DJI)": "DJI_Close",
             "Cross-Asset Safe Haven (XAU/EUR)": "XAE_Close",
             "VanEck Gold Miners ETF (GDX)": "GDX_Close",
             "Junior Gold Miners ETF (GDXJ)": "GDXJ_Close",
@@ -163,7 +174,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
             
             table_rows.append({
                 "Asset Component Name": display_name,
-                "Current Price/Level": f"{val_latest:.3f}%" if "TNX" in col_key else f"{val_latest:.2f}" if "VIX" in col_key or "DXY" in col_key else f"${val_latest:.2f}",
+                "Current Price/Level": f"{val_latest:.3f}%" if "TNX" in col_key or "TIP" in col_key else f"{val_latest:.2f}" if "VIX" in col_key or "DXY" in col_key else f"${val_latest:.2f}",
                 "Change (Points)": point_delta,
                 "Change (%)": percentage_delta
             })
@@ -181,7 +192,7 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         df['GC_Sell'] = np.where((df['EMA_10'] < df['EMA_20']) & (df['EMA_20'] < df['EMA_100']) & (df['Gold_Close'] < df['Prev_Low_2']), 1, 0)
         tech_vector   = int(df['GC_Buy'].iloc[-1] - df['GC_Sell'].iloc[-1])
 
-        df['DXY_Pct'] = df['DXY_Close'].pct_change() * 100; df['TLT_Pct'] = df['TLT_Close'].pct_change() * 100; df['SPY_Pct'] = df['SPY_Close'].pct_change() * 100; df['TIP_Pct'] = df['TIP_Close'].pct_change() * 100; df['XAE_Pct'] = df['XAE_Close'].pct_change() * 100
+        df['DXY_Pct'] = df['DXY_Close'].pct_change() * 100; df['TLT_Pct'] = df['TLT_Close'].pct_change() * 100; df['SPX_Pct'] = df['SPX_Close'].pct_change() * 100; df['TIP_Pct'] = df['TIP_Close'].pct_change() * 100; df['XAE_Pct'] = df['XAE_Close'].pct_change() * 100
         m1_up = (df['M1_Close'].pct_change() > 0).astype(int); m2_up = (df['M2_Close'].pct_change() > 0).astype(int); m3_up = (df['M3_Close'].pct_change() > 0).astype(int); m4_up = (df['M4_Close'].pct_change() > 0).astype(int)
         df['Miner_Buy']  = np.where((m1_up == 1) & (m2_up == 1) & (m3_up == 1) & (m4_up == 1), 1, 0)
         df['Miner_Sell'] = np.where((m1_up == 0) & (m2_up == 0) & (m3_up == 0) & (m4_up == 0), 1, 0)
@@ -192,26 +203,20 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         df['News_Pts'] = np.random.normal(live_sent * 1.5, 0.1, len(df))
         df['Fund_Score'] = df['DXY_Pts'] + df['TLT_Pts'] + df['VIX_Pts'] + df['SPY_Pts'] + df['TIP_Pts'] + df['XAE_Pts'] + df['Miner_Pts'] + df['News_Pts']
         fund_score_live = float(df['Fund_Score'].iloc[-1])
-        # --- PHASE 4: FIXED SAFE-GUARDED MACHINE LEARNING HORIZONS ---
-        df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)   # Short Term
-        df['Target_MT'] = np.where(df['Gold_Close'].shift(-14) > df['Gold_Close'], 1, 0)  # Medium Term
-        df['Target_LT'] = np.where(df['Gold_Close'].shift(-45) > df['Gold_Close'], 1, 0)  # Long Term
-        
-        # Safe Execution Gate: Dropna is executed ONLY at the very end after rolling columns are filled
+        # --- PHASE 4: HIGH-SAFETY MACHINE LEARNING TIME HORIZONS ---
+        df['Target_ST'] = np.where(df['Gold_Close'].shift(-2) > df['Gold_Close'], 1, 0)   # Short (2 Days)
+        df['Target_MT'] = np.where(df['Gold_Close'].shift(-14) > df['Gold_Close'], 1, 0)  # Medium (14 Days)
+        df['Target_LT'] = np.where(df['Gold_Close'].shift(-45) > df['Gold_Close'], 1, 0)  # Long (45 Days)
         df_clean = df.dropna().copy()
         
-        # SYSTEM ARMOR CHECK: Guarantees the classifiers never run into an empty array if data feeds lag
         if df_clean.empty or len(df_clean) < 10:
-            ai_st_pct, ai_mt_pct, ai_lt_pct = 50.0, 50.0, 50.0 # Return fallback balanced neutral states
+            ai_st_pct, ai_mt_pct, ai_lt_pct = 50.0, 50.0, 50.0
         else:
             feature_cols = ['GC_Buy', 'GC_Sell', 'Fund_Score', 'DXY_Pts', 'TLT_Pts', 'Miner_Pts', 'VIX_Pts']
             X = df_clean[feature_cols]
-            
-            model_st = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_ST'])
-            model_mt = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_MT'])
-            model_lt = GradientBoostingClassifier(n_estimators=100, max_depth=4, random_state=42).fit(X, df_clean['Target_LT'])
-            
-            # Extract scalars securely using index cell slices to eliminate runtime warnings
+            model_st = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_ST'])
+            model_mt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_MT'])
+            model_lt = GradientBoostingClassifier(n_estimators=100, random_state=42).fit(X, df_clean['Target_LT'])
             ai_st_pct = float(model_st.predict_proba(X.iloc[[-1]])[0][1] * 100)
             ai_mt_pct = float(model_mt.predict_proba(X.iloc[[-1]])[0][1] * 100)
             ai_lt_pct = float(model_lt.predict_proba(X.iloc[[-1]])[0][1] * 100)
@@ -219,81 +224,111 @@ if st.button("RUN DEEP HYBRID ENSEMBLE CALCULATOR", type="primary", use_containe
         # --- PHASE 5: RE-ENGINEERED SVG GAUGE GENERATOR COMPILER ---
         def generate_html_gauge(title_label, metric_score, type_mode):
             if type_mode == "TECH":
-                if metric_score == 1: lbl, col, angle = "STRONG BUY", "#00FF66", 155
-                elif metric_score == -1: lbl, col, angle = "STRONG SELL", "#FF0033", 25
+                if metric_score == 1: lbl, col, angle = "BUY HARD", "#00FF66", 155
+                elif metric_score == -1: lbl, col, angle = "SELL HARD", "#FF0033", 25
                 else: lbl, col, angle = "NEUTRAL", "#FF9900", 90
             elif type_mode == "FUND":
-                if metric_score >= 5.5: lbl, col, angle = "STRONG BUY", "#00FF66", 155
+                if metric_score >= 5.5: lbl, col, angle = "BUY HARD", "#00FF66", 155
                 elif metric_score >= 1.5: lbl, col, angle = "BUY", "#88FF88", 120
-                elif metric_score <= -5.5: lbl, col, angle = "STRONG SELL", "#FF0033", 25
+                elif metric_score <= -5.5: lbl, col, angle = "SELL HARD", "#FF0033", 25
                 elif metric_score <= -1.5: lbl, col, angle = "SELL", "#FF8888", 60
                 else: lbl, col, angle = "NEUTRAL", "#FF9900", 90
             elif type_mode == "AI":
-                if metric_score >= 65.0: lbl, col, angle = "STRONG BUY", "#00FF66", 155
-                elif metric_score >= 53.0: lbl, col, angle = "BUY", "#88FF88", 120
-                elif metric_score <= 35.0: lbl, col, angle = "STRONG SELL", "#FF0033", 25
-                elif metric_score <= 47.0: lbl, col, angle = "SELL", "#FF8888", 60
+                if metric_score >= 62.0: lbl, col, angle = "BUY HARD", "#00FF66", 155
+                elif metric_score >= 52.5: lbl, col, angle = "BUY", "#88FF88", 120
+                elif metric_score <= 38.0: lbl, col, angle = "SELL HARD", "#FF0033", 25
+                elif metric_score <= 47.5: lbl, col, angle = "SELL", "#FF8888", 60
                 else: lbl, col, angle = "NEUTRAL", "#FF9900", 90
 
             return f"""
-            <div style="display: flex; justify-content: center; align-items: center; background: #161B22; border: 1px solid #21262D; padding: 25px; border-radius: 12px; font-family: Arial, sans-serif; box-sizing: border-box;">
+            <div style="display: flex; justify-content: center; align-items: center; background: #161B22; border: 1px solid #21262D; padding: 20px; border-radius: 12px; font-family: Arial, sans-serif; box-sizing: border-box;">
                 <div style="width: 100%; max-width: 380px; text-align: center;">
-                    <div style="font-size: 13px; text-transform: uppercase; color: #8B949E; font-weight: bold; letter-spacing: 1px;">{title_label}</div>
-                    <svg viewBox="0 0 200 130" width="100%" height="100%" style="max-width: 280px; margin-top: 15px; overflow: visible;">
+                    <div style="font-size: 12px; text-transform: uppercase; color: #8B949E; font-weight: bold; letter-spacing: 1px;">{title_label}</div>
+                    <svg viewBox="0 0 200 130" width="100%" height="100%" style="max-width: 250px; margin-top: 15px; overflow: visible;">
                         <path d="M20,110 A80,80 0 0,1 180,110" fill="none" stroke="#22332A" stroke-width="14" stroke-linecap="round"/>
                         <path d="M20,110 A80,80 0 0,1 60,53" fill="none" stroke="#FF0033" stroke-width="5" opacity="0.4"/>
                         <path d="M60,53 A80,80 0 0,1 90,34" fill="none" stroke="#FF8888" stroke-width="5" opacity="0.4"/>
                         <path d="M90,34 A80,80 0 0,1 110,34" fill="none" stroke="#FF9900" stroke-width="5" opacity="0.4"/>
                         <path d="M110,34 A80,80 0 0,1 140,53" fill="none" stroke="#88FF88" stroke-width="5" opacity="0.4"/>
                         <path d="M140,53 A80,80 0 0,1 180,110" fill="none" stroke="#00FF66" stroke-width="5" opacity="0.4"/>
-                        <text x="5" y="122" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="start">S.SELL</text>
+                        <text x="5" y="122" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="start">SELL HARD</text>
                         <text x="44" y="46" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="middle">SELL</text>
                         <text x="100" y="20" fill="#8B949E" font-size="8" font-weight="bold" text-anchor="middle">NEUTRAL</text>
                         <text x="156" y="46" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="middle">BUY</text>
-                        <text x="195" y="122" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="end">S.BUY</text>
+                        <text x="195" y="122" fill="#8B949E" font-size="7" font-weight="bold" text-anchor="end">BUY HARD</text>
                         <circle cx="100" cy="110" r="6" fill="#FFFFFF" stroke="#121A16" stroke-width="2"/>
                         <line x1="100" y1="110" x2="100" y2="36" stroke="{col}" stroke-width="3" stroke-linecap="round" transform="rotate({angle - 90} 100 110)" style="transition: transform 0.6s ease-in-out; filter: drop-shadow(0px 0px 4px {col}aa);"/>
                     </svg>
-                    <div style="font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 5px; color: {col}; text-shadow: 0 0 10px {col}55;">{lbl}</div>
+                    <div class="status-text" style="color: {col}; font-size: 20px; margin-top: 5px; text-shadow: 0 0 10px {col}44;">{lbl}</div>
                 </div>
             </div>
             """
 
-        # --- PHASE 6: RENDER INTERACTIVE TIME HORIZON TABS CONTAINER LAYER ---
+        # --- PHASE 6: CALCULATE AND RENDER MASTER SIGNAL RECONCILIATION AREA ---
+        conf_score = 0
+        if tech_vector == 1: conf_score += 1
+        elif tech_vector == -1: conf_score -= 1
+        if fund_score_live >= 1.5: conf_score += 1
+        elif fund_score_live <= -1.5: conf_score -= 1
+        if ai_st_pct >= 52.5: conf_score += 1
+        elif ai_st_pct <= 47.5: conf_score -= 1
+        
         st.markdown("---")
+        st.subheader("🏁 Master Confluence Radar")
+        
+        # Maps 5-tier final directional outputs cleanly across the confluence thresholds
+        if conf_score >= 3:
+            st.markdown('<div class="confluence-box" style="background:#062613; border-color:#00FF66;"><div class="engine-header">Master Combined Output</div><div class="status-text" style="color:#00FF66; text-shadow: 0 0 15px #00FF66aa;">BUY HARD</div><div class="sub-status">All 3 independent processing dimensions confirm deep macro alignment.</div></div>', unsafe_allow_html=True)
+        elif conf_score >= 1:
+            st.markdown('<div class="confluence-box" style="background:#111F16; border-color:#88FF88;"><div class="engine-header">Master Combined Output</div><div class="status-text" style="color:#88FF88; text-shadow: 0 0 15px #88FF8866;">BUY</div><div class="sub-status">Macro fundamental vectors lean long, local structural pull is flat.</div></div>', unsafe_allow_html=True)
+        elif conf_score <= -3:
+            st.markdown('<div class="confluence-box" style="background:#2D080E; border-color:#FF0033;"><div class="engine-header">Master Combined Output</div><div class="status-text" style="color:#FF0033; text-shadow: 0 0 15px #FF0033aa;">SELL HARD</div><div class="sub-status">Aggressive distribution triggers hit liquidity. Extreme risk warnings active.</div></div>', unsafe_allow_html=True)
+        elif conf_score <= -1:
+            st.markdown('<div class="confluence-box" style="background:#211215; border-color:#FF8888;"><div class="engine-header">Master Combined Output</div><div class="status-text" style="color:#FF8888; text-shadow: 0 0 15px #FF888866;">SELL</div><div class="sub-status">Macro data curves lean short, technical parameters consolidating.</div></div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="confluence-box" style="background:#211905; border-color:#FF9900;"><div class="engine-header">Master Combined Output</div><div class="status-text" style="color:#FF9900; text-shadow: 0 0 15px #FF9900aa;">WAIT / FLAT</div><div class="sub-status">Market drivers are conflicting or fighting each other. Keep bots sit flat.</div></div>', unsafe_allow_html=True)
+
+        # --- PHASE 7: TIME HORIZON TABS INTERFACE CONTAINER LAYER ---
         tab_st, tab_mt, tab_lt = st.tabs(["Short-Term\nIntraday - 1 Week", "Medium-Term\n2 Weeks - 1 Month", "Long-Term\n1 - 6 Months"])
         
         with tab_st:
-            st.markdown('<div class="section-box"><div class="engine-header">Part 1 Engine</div><div class="engine-title">Macro Fundamental Sentiment</div>', unsafe_allow_html=True)
-            st.components.v1.html(generate_html_gauge("Fundamental Matrix Arc", fund_score_live, "FUND"), height=255)
-            st.markdown('</div><div class="section-box"><div class="engine-header">Part 2 Engine</div><div class="engine-title">GreenCrow Technical Breakouts</div>', unsafe_allow_html=True)
-            st.components.v1.html(generate_html_gauge("Technical Breakout Arc", tech_vector, "TECH"), height=255)
-            st.markdown('</div><div class="section-box"><div class="engine-header">Part 3 Engine</div><div class="engine-title">AI Predictive Forecast Oracle</div>', unsafe_allow_html=True)
-            st.components.v1.html(generate_html_gauge("Short-Term Machine Conviction", ai_st_pct, "AI"), height=255)
+            st.markdown('<div class="section-box"><div class="engine-header">Part 1 Engine</div><div class="engine-title">Macro Fundamental Sentiment (App.py Core)</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Fundamental Matrix Arc", fund_score_live, "FUND"), height=240)
+            st.markdown('</div><div class="section-box"><div class="engine-header">Part 2 Engine</div><div class="engine-title">GreenCrow Technical Breakouts (EMA Matrix)</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Technical Breakout Arc", tech_vector, "TECH"), height=240)
+            st.markdown('</div><div class="section-box"><div class="engine-header">Part 3 Engine</div><div class="engine-title">AI Predictive Forecast Oracle (Gradient Boosting)</div>', unsafe_allow_html=True)
+            st.components.v1.html(generate_html_gauge("Short-Term Machine Conviction", ai_st_pct, "AI"), height=240)
             st.markdown('</div>', unsafe_allow_html=True)
             
         with tab_mt:
             st.markdown('<div class="section-box"><div class="engine-header">Part 3 Engine</div><div class="engine-title">AI Medium-Term Horizon Forecast Oracle</div>', unsafe_allow_html=True)
-            st.components.v1.html(generate_html_gauge("Medium-Term Machine Conviction", ai_mt_pct, "AI"), height=255)
+            st.components.v1.html(generate_html_gauge("Medium-Term Machine Conviction", ai_mt_pct, "AI"), height=240)
             st.markdown('</div>', unsafe_allow_html=True)
             
         with tab_lt:
             st.markdown('<div class="section-box"><div class="engine-header">Part 3 Engine</div><div class="engine-title">AI Long-Term Horizon Forecast Oracle</div>', unsafe_allow_html=True)
-            st.components.v1.html(generate_html_gauge("Long-Term Machine Conviction", ai_lt_pct, "AI"), height=255)
+            st.components.v1.html(generate_html_gauge("Long-Term Machine Conviction", ai_lt_pct, "AI"), height=240)
             st.markdown('</div>', unsafe_allow_html=True)
 
-        # --- PHASE 7: RENDER THE HIGH-CONTRAST DATA MATRIX SCORECARD ---
+              # --- PHASE 8: PROFESSIONAL HIGH-CONTRAST DYNAMIC PERFORMANCE MATRIX ---
         st.markdown("---")
         st.subheader("📋 Macro Portfolio Scorecard Matrix")
         
+        # Inject standard style highlighting formats to color positive moves green and negative moves red
         def apply_color_shading(val):
             try:
                 numeric_val = float(val)
                 color = '#00FF66' if numeric_val > 0 else '#FF0033' if numeric_val < 0 else '#C9D1D9'
                 return f'color: {color}; font-weight: bold; font-family: "Consolas", monospace;'
-            except: return 'color: #C9D1D9;'
+            except:
+                return 'color: #C9D1D9;'
                 
+        # Format points and percentages cleanly based on asset type structures
         styled_scorecard = df_scorecard.style.map(apply_color_shading, subset=['Change (Points)', 'Change (%)']).format({
-            'Change (Points)': '{:+.2f}', 'Change (%)': '{:+.2f}%'
+            'Change (Points)': '{:+.3f}' if any(y in str(df_scorecard['Asset Component Name']) for y in ['Yield', 'DFII10']) else '{:+.2f}',
+            'Change (%)': '{:+.2f}%'
         })
+        
+        # Output the professional data grid onto your mobile screen canvas
         st.dataframe(styled_scorecard, use_container_width=True, hide_index=True)
+
